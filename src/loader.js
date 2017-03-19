@@ -1,20 +1,15 @@
 const phantom = require('phantom');
 const Cacher = require('./cacher');
 
-/**
- * @param{cacheInterval} interval in days of caching (0 - disabled)
- * @param{cacheType} : [
- *  'mongodb' - saves cache to mongodb
- *  'json' - saves cache as json
- *  everything else - caching will not occure
- * ]
- * @param{cacheModel} requires three fields to be specified: htmlContent, expirationDate, url
- */
 const defaultOptions = {
     cacheOptions: { }
 };
 
 module.exports = class Loader {
+    /**
+     * @constructor
+     * @param {Object} options - Object with cacheOptions field
+     */
     constructor(options) {
         this.opts = Object.assign({}, defaultOptions, options);
         this.cacheEnabled = this.opts.cacheOptions.cacheInterval > 0;
@@ -23,6 +18,11 @@ module.exports = class Loader {
         }
     }
 
+    /**
+     * 
+     * @param {String} url - url from which page should be rendered 
+     * @returns {Promise} resolves html content from url or from cache based on options
+     */
     getContent(url) {
         if (this.cacheEnabled) {
             return this.cacher.getCachedObj(url).then(
@@ -43,6 +43,11 @@ module.exports = class Loader {
         }
     }
 
+    /**
+     * 
+     * @param {String} url - url from which page should be rendered 
+     * @returns {Promise} resolves html content when loaded and executed
+     */
     loadFromUrl(url) {
         return new Promise((res, rej) => {
             if (!url) {
