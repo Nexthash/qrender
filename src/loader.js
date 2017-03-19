@@ -29,7 +29,7 @@ module.exports = class Loader {
                 data => {
                     if (data.isCacheExpired) {
                         return this.loadFromUrl(url).then(
-                            content => (cacher.updateCachedObj(url, content), content),
+                            content => (this.cacher.updateCachedObj(url, content), content),
                             error => error
                         );
                     } else {
@@ -55,6 +55,7 @@ module.exports = class Loader {
             } else {
                 let openedPage;
                 let phantomInstance
+                let html;
                 phantom.create().then(
                     instance => {
                         phantomInstance = instance;
@@ -62,7 +63,7 @@ module.exports = class Loader {
                             page => {
                                 openedPage = page;
                                 return page.open(url).then(status => {
-                                    const html = page.property('content');
+                                    html = page.property('content');
                                     instance.exit();
                                     res(html);
                                 });

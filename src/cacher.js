@@ -1,6 +1,7 @@
 const defaultOptions = {
     connectionString: '',
-    cacheInterval: 0
+    cacheInterval: 0,
+    collectionName: ''
 };
 
 /**
@@ -19,6 +20,7 @@ module.exports = class Cacher {
      * @param {Object} options should have fields:
      * - {String} connection (mongo conneciton string) 
      * - {Number} cacheInterval (in days, 0 - disabled)
+     * - {String} collectionName - mongodb collection name
      */
     constructor(options) {
         this.opts = Object.assign({}, defaultOptions, options);
@@ -41,7 +43,7 @@ module.exports = class Cacher {
                     if (err) {
                         rej(err);
                     } else {
-                        const cacheCollection = db.collection('cache');
+                        const cacheCollection = db.collection(this.opts.collectionName);
                         cacheCollection.findOne({ url }, (err, obj) => {
                             res({
                                 isCacheExpired: !err && obj ? this._isCacheExpired(obj.cacheExpirationDate) : true,
@@ -70,10 +72,10 @@ module.exports = class Cacher {
                     if (err) {
                         rej(err);
                     } else {
-                        const cacheCollection = db.collection('cache');
+                        const cacheCollection = db.collection(this.opts.collectionName);
                         cacheCollection.findOne({ url }, (err, obj) => {
                             const expDate = new Date();
-                            expDate.setDate(expDate.getDate() + config.cacheDays || 1);
+                            expDate.setDate(expDate.getDate() + this.opts.cacheInterval);
                             if (err || !obj) {
                                 cacheCollection.save({
                                     url,
@@ -99,7 +101,12 @@ module.exports = class Cacher {
         });
     }
 
+    /**
+     * 
+     * @param {Date} expirationDate 
+     * @private
+     */
     _isCacheExpired(expirationDate) {
-        return (new Date().getTime() - new Date(cacheExpirationDate).getTime()) > 0;
+        return (new Date().getTime() - new Date(expirationDate).getTime()) > 0;
     }
 }

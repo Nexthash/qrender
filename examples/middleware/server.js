@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const loadMiddleware = require('../../index.js');
+
 app.use(loadMiddleware());
 
 app.get('/*', (req, res) => {

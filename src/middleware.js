@@ -6,7 +6,8 @@ module.exports = getMiddleware;
  * @param {Object} options - Options that contain functions:
  * isReqForRender - checks if request should be Rendered
  * getUrlFromReq - gets original url for request
- * And Object loaderOptions - options for loader module 
+ * And Object loaderOptions - options for loader module
+ * sendError {Boolean} - send response if error occures
  */
 function getMiddleware(options) {
     const fragmentRegex = /(\?|&)_escaped_fragment_=/;
@@ -14,7 +15,8 @@ function getMiddleware(options) {
     const defaultOptions = {
         isReqForRender: req => fragmentRegex.test(`${hostToRenderFrom}${req.originalUrl}`),
         getUrlFromReq: req => `${hostToRenderFrom}${req.originalUrl}`.replace(fragmentRegex, ''),
-        loaderOptions: {}
+        loaderOptions: {},
+        sendError: false
     };
 
     const opts = Object.assign({}, defaultOptions, options);
@@ -32,7 +34,9 @@ function getMiddleware(options) {
                     next('Rendered content has been sent');
                 },
                 error => {
-                    res.send(error);
+                    if (otps.sendError) {
+                        res.send(error);
+                    }
                     next(error);
                 }
             );
