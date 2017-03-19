@@ -19,7 +19,6 @@
     "express",
     "middleware",
     "rendering",
-    "spa",
     "phantomjs"
   ],
   "author": "Hnat Shapovalov",
